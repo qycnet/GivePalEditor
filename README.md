@@ -1,0 +1,2 @@
+# GivePalEditor
+GivePalEditor - Palworld Editor
