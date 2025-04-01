@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>定制帕鲁编辑器 - GivePalEditor</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="css/styles.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+</head>
+<body>
+    <!-- Toast提示容器 -->
+    <div class="toast-container"></div>
+    
+    <div class="container-fluid">
+        <header class="py-3 mb-4 border-bottom bg-white shadow-sm">
+            <div class="container d-flex align-items-center justify-content-between">
+                <h1 class="fs-4 mb-0">
+                    <i class="bi bi-controller me-2"></i>GivePalEditor - 定制帕鲁编辑器
+                </h1>
+                <div class="d-flex">
+                    <a href="docs.html" class="btn btn-outline-info me-2 d-flex align-items-center">
+                        <i class="bi bi-book me-1"></i> 使用文档
+                    </a>
+                    <button id="loadJsonBtn" class="btn btn-outline-primary me-2 d-flex align-items-center">
+                        <i class="bi bi-download me-1"></i> 导入JSON
+                    </button>
+                    <button id="generateJsonBtn" class="btn btn-primary me-2 d-flex align-items-center">
+                        <i class="bi bi-upload me-1"></i> 导出JSON
+                    </button>
+                    <button id="refreshSkillsBtn" class="btn btn-secondary d-flex align-items-center">
+                        <i class="bi bi-arrow-clockwise me-1"></i> 刷新技能列表
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main class="container">
+            <div class="row">
+                <!-- 左侧导航 -->
+                <div class="col-md-3">
+                    <div class="card mb-4">
+                        <div class="card-body p-0">
+                            <div class="list-group list-group-flush" id="tab-list" role="tablist">
+                                <a class="list-group-item list-group-item-action active" data-bs-toggle="list" href="#basic-info" role="tab">
+                                    <i class="bi bi-info-circle me-2"></i>基本信息
+                                </a>
+                                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#core-attributes" role="tab">
+                                    <i class="bi bi-star me-2"></i>核心属性
+                                </a>
+                                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#pal-souls" role="tab">
+                                    <i class="bi bi-heart me-2"></i>帕鲁灵魂
+                                </a>
+                                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#ivs" role="tab">
+                                    <i class="bi bi-graph-up me-2"></i>个体值
+                                </a>
+                                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#active-skills" role="tab">
+                                    <i class="bi bi-lightning me-2"></i>主动技能
+                                </a>
+                                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#learnt-skills" role="tab">
+                                    <i class="bi bi-book me-2"></i>已学技能
+                                </a>
+                                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#passive-skills" role="tab">
+                                    <i class="bi bi-shield me-2"></i>被动技能
+                                </a>
+                                <a class="list-group-item list-group-item-action" data-bs-toggle="list" href="#work-preferences" role="tab">
+                                    <i class="bi bi-briefcase me-2"></i>工作偏好
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右侧内容 -->
+                <div class="col-md-9">
+                    <div class="tab-content">
+                        <!-- 基本信息 -->
+                        <div class="tab-pane fade show active" id="basic-info" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>基本信息</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="palSelector" class="form-label">选择帕鲁</label>
+                                            <select class="form-select" id="palSelector">
+                                                <option value="">请选择帕鲁...</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="palId" class="form-label">帕鲁ID</label>
+                                            <input type="text" class="form-control" id="palId" value="JetDragon">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="nickname" class="form-label">昵称</label>
+                                            <input type="text" class="form-control" id="nickname" value="PalGuardian">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="gender" class="form-label">性别</label>
+                                            <select class="form-select" id="gender">
+                                                <option value="Male">男性</option>
+                                                <option value="Female">女性</option>
+                                            </select>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="level" class="form-label">等级</label>
+                                            <input type="number" class="form-control" id="level" value="1" min="1" max="50">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="exp" class="form-label">经验值</label>
+                                            <input type="number" class="form-control" id="exp" value="1" min="0">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="form-check form-switch mt-4">
+                                                <input class="form-check-input" type="checkbox" id="shiny" checked>
+                                                <label class="form-check-label" for="shiny">闪光</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="partnerSkillLevel" class="form-label">伙伴技能等级</label>
+                                            <input type="number" class="form-control" id="partnerSkillLevel" value="231" min="0" max="255">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="condensedPals" class="form-label">凝聚帕鲁数</label>
+                                            <input type="number" class="form-control" id="condensedPals" value="255" min="0" max="255">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="unusedStatusPoints" class="form-label">未使用状态点</label>
+                                            <input type="number" class="form-control" id="unusedStatusPoints" value="0" min="0">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 核心属性 -->
+                        <div class="tab-pane fade" id="core-attributes" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>核心属性</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="hp" class="form-label">生命值 (HP)</label>
+                                            <input type="number" class="form-control" id="hp" value="100" min="1">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="sp" class="form-label">特殊值 (SP)</label>
+                                            <input type="number" class="form-control" id="sp" value="100.0" min="0" step="0.1">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="hunger" class="form-label">饥饿度</label>
+                                            <input type="number" class="form-control" id="hunger" value="557.42" min="0" step="0.01">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="maxHunger" class="form-label">最大饥饿度</label>
+                                            <input type="number" class="form-control" id="maxHunger" value="600.0" min="0" step="0.1">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="san" class="form-label">精神值 (SAN)</label>
+                                            <input type="number" class="form-control" id="san" value="100.0" min="0" step="0.1">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="support" class="form-label">支援值</label>
+                                            <input type="number" class="form-control" id="support" value="0" min="0">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="craftSpeed" class="form-label">制作速度</label>
+                                            <input type="number" class="form-control" id="craftSpeed" value="100" min="0" max="1680">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 帕鲁灵魂 -->
+                        <div class="tab-pane fade" id="pal-souls" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>帕鲁灵魂属性</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="soulHealth" class="form-label">生命</label>
+                                            <input type="number" class="form-control" id="soulHealth" value="255" min="0" max="255">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="soulAttack" class="form-label">攻击</label>
+                                            <input type="number" class="form-control" id="soulAttack" value="255" min="0" max="255">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="soulDefense" class="form-label">防御</label>
+                                            <input type="number" class="form-control" id="soulDefense" value="255" min="0" max="255">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="soulCraftSpeed" class="form-label">制作速度</label>
+                                            <input type="number" class="form-control" id="soulCraftSpeed" value="255" min="0" max="255">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 个体值 -->
+                        <div class="tab-pane fade" id="ivs" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>个体值 (IVs)</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="ivHealth" class="form-label">生命</label>
+                                            <input type="number" class="form-control" id="ivHealth" value="225" min="0" max="255">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="ivAttackMelee" class="form-label">近战攻击</label>
+                                            <input type="number" class="form-control" id="ivAttackMelee" value="255" min="0" max="255">
+                                        </div>
+                                    </div>
+                                    <div class="row mb-3">
+                                        <div class="col-md-6">
+                                            <label for="ivAttackShot" class="form-label">远程攻击</label>
+                                            <input type="number" class="form-control" id="ivAttackShot" value="255" min="0" max="255">
+                                        </div>
+                                        <div class="col-md-6">
+                                            <label for="ivDefense" class="form-label">防御</label>
+                                            <input type="number" class="form-control" id="ivDefense" value="225" min="0" max="255">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 主动技能 -->
+                        <div class="tab-pane fade" id="active-skills" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5>主动技能</h5>
+                                    <small class="text-muted" id="activeSkillCount">0/14</small>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>已选择的主动技能</h6>
+                                        <div id="selectedActiveSkills" class="selected-skills mb-3"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="skillCategoryFilter" class="form-label">技能类型筛选</label>
+                                        <select class="form-select" id="skillCategoryFilter">
+                                            <option value="all">全部技能</option>
+                                            <option value="dragon">龙系技能</option>
+                                            <option value="fire">火系技能</option>
+                                            <option value="water">水系技能</option>
+                                            <option value="grass">草系技能</option>
+                                            <option value="electric">电系技能</option>
+                                            <option value="ice">冰系技能</option>
+                                            <option value="ground">地/岩石系技能</option>
+                                            <option value="dark">暗/幽灵系技能</option>
+                                            <option value="wind">风/空气系技能</option>
+                                            <option value="special">特殊技能</option>
+                                            <option value="unique">独特技能</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="skillSearch" class="form-label">搜索技能</label>
+                                        <input type="text" class="form-control" id="skillSearch" placeholder="输入技能名称...">
+                                    </div>
+                                    <div id="activeSkillsList" class="skill-list"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 已学技能 -->
+                        <div class="tab-pane fade" id="learnt-skills" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5>已学技能</h5>
+                                    <div>
+                                        <button type="button" class="btn btn-outline-danger btn-sm me-2" id="clearLearntSkills">
+                                            清空技能
+                                        </button>
+                                        <button type="button" class="btn btn-outline-primary btn-sm" id="selectAllLearntSkills">
+                                            全选技能
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="d-flex justify-content-between align-items-center mb-3">
+                                        <h6>已选择的已学技能</h6>
+                                        <div>
+                                            <small class="text-muted me-3" id="learntSkillCounter">显示 0 个技能</small>
+                                            <small class="text-muted" id="selectedSkillsCounter">已选择 0 个技能</small>
+                                        </div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>已选择的已学技能</h6>
+                                        <div id="selectedLearntSkills" class="selected-skills mb-3"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="learntSkillCategoryFilter" class="form-label">技能类型筛选</label>
+                                        <select class="form-select" id="learntSkillCategoryFilter">
+                                            <option value="all">全部技能</option>
+                                            <option value="dragon">龙系技能</option>
+                                            <option value="fire">火系技能</option>
+                                            <option value="water">水系技能</option>
+                                            <option value="grass">草系技能</option>
+                                            <option value="electric">电系技能</option>
+                                            <option value="ice">冰系技能</option>
+                                            <option value="ground">地/岩石系技能</option>
+                                            <option value="dark">暗/幽灵系技能</option>
+                                            <option value="wind">风/空气系技能</option>
+                                            <option value="special">特殊技能</option>
+                                            <option value="unique">独特技能</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="learntSkillSearch" class="form-label">搜索技能</label>
+                                        <input type="text" class="form-control" id="learntSkillSearch" placeholder="输入技能名称...">
+                                    </div>
+                                    <div id="learntSkillsList" class="skill-list"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 被动技能 -->
+                        <div class="tab-pane fade" id="passive-skills" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header d-flex justify-content-between align-items-center">
+                                    <h5>被动技能</h5>
+                                    <button type="button" class="btn btn-outline-danger btn-sm" id="clearPassiveSkills">
+                                        清空技能
+                                    </button>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>已选择的被动技能</h6>
+                                        <div id="selectedPassiveSkills" class="selected-skills mb-3"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="passiveCategoryFilter" class="form-label">技能类型筛选</label>
+                                        <select class="form-select" id="passiveCategoryFilter">
+                                            <!-- 选项将由 JavaScript 动态填充 -->
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="passiveSearch" class="form-label">搜索技能</label>
+                                        <input type="text" class="form-control" id="passiveSearch" placeholder="输入技能名称...">
+                                    </div>
+                                    <div id="passiveSkillsList" class="skill-list"></div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- 工作偏好 -->
+                        <div class="tab-pane fade" id="work-preferences" role="tabpanel">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5>工作偏好设置</h5>
+                                </div>
+                                <div class="card-body">
+                                    <p class="mb-3">设置帕鲁不喜欢的工作类型，设置后帕鲁将不会主动从事这些工作。</p>
+                                    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#disableWorkPreferencesModal">
+                                        <i class="bi bi-gear"></i> 设置工作偏好
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- 工作偏好模态框 -->
+                            <div class="modal fade" id="disableWorkPreferencesModal" tabindex="-1" aria-labelledby="disableWorkPreferencesModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h5 class="modal-title" id="disableWorkPreferencesModalLabel">设置工作偏好</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body">
+                                            <div class="mb-3">
+                                                <label for="workPreferencesInput" class="form-label">禁用的工作类型（用逗号分隔）</label>
+                                                <input type="text" class="form-control" id="workPreferencesInput" placeholder="例如: Collection, Mining, BaseCampBattle">
+                                                <div class="form-text">
+                                                    工作类型对照：<br>
+                                                    Collection - 采集, Deforest - 伐木, Mining - 采矿, Handcraft - 制作, Transport - 运输,<br>
+                                                    Seeding - 种植, Watering - 浇水, GenerateElectricity - 发电, MedicalCare - 医疗, CoolDown - 冷却,<br>
+                                                    Shop - 商店, Ranch - 放牧, MonsterFarm - 农场, OilExtraction - 油田, BaseCampBattle - 基地战斗
+                                                </div>
+                                            </div>
+                                            <div id="workPreferencesList" class="work-preferences-list">
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                                            <button type="button" class="btn btn-primary" id="saveWorkPreferences">保存</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- 工作偏好预览 -->
+                            <div class="card mt-3">
+                                <div class="card-header">
+                                    <h5>工作偏好设置</h5>
+                                </div>
+                                <div class="card-body">
+                                    <div class="mb-3">
+                                        <h6>已禁用的工作</h6>
+                                        <div id="selectedDisabledPreferences" class="selected-preferences mb-3"></div>
+                                    </div>
+                                    <div class="mb-3">
+                                        <h6>点击选择要禁用的工作</h6>
+                                        <div id="workPreferencesList" class="work-preferences-list">
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="BaseCampBattle" id="pref_BaseCampBattle">
+                                                <label class="form-check-label" for="pref_BaseCampBattle">基地战斗</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="Deforest" id="pref_Deforest">
+                                                <label class="form-check-label" for="pref_Deforest">砍伐</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="Mining" id="pref_Mining">
+                                                <label class="form-check-label" for="pref_Mining">采矿</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="Collection" id="pref_Collection">
+                                                <label class="form-check-label" for="pref_Collection">采集</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="GenerateElectricity" id="pref_GenerateElectricity">
+                                                <label class="form-check-label" for="pref_GenerateElectricity">发电</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="CoolDown" id="pref_CoolDown">
+                                                <label class="form-check-label" for="pref_CoolDown">降温</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="Transport" id="pref_Transport">
+                                                <label class="form-check-label" for="pref_Transport">运输</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="MonsterFarm" id="pref_MonsterFarm">
+                                                <label class="form-check-label" for="pref_MonsterFarm">农场</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="Handcraft" id="pref_Handcraft">
+                                                <label class="form-check-label" for="pref_Handcraft">手工制作</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="Seeding" id="pref_Seeding">
+                                                <label class="form-check-label" for="pref_Seeding">种植</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="Watering" id="pref_Watering">
+                                                <label class="form-check-label" for="pref_Watering">浇水</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="MedicalCare" id="pref_MedicalCare">
+                                                <label class="form-check-label" for="pref_MedicalCare">医疗</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="Shop" id="pref_Shop">
+                                                <label class="form-check-label" for="pref_Shop">商店</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="Ranch" id="pref_Ranch">
+                                                <label class="form-check-label" for="pref_Ranch">放牧</label>
+                                            </div>
+                                            <div class="form-check">
+                                                <input class="form-check-input" type="checkbox" value="OilExtraction" id="pref_OilExtraction">
+                                                <label class="form-check-label" for="pref_OilExtraction">油田</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 导入JSON模态框 -->
+    <div class="modal fade" id="loadJsonModal" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">导入JSON数据</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="jsonInput" class="form-label">粘贴JSON数据：</label>
+                        <textarea class="form-control" id="jsonInput" rows="10"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+                    <button type="button" class="btn btn-primary" id="confirmLoadBtn">确认导入</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 移除了导出JSON模态框 -->
+
+    <!-- 提示框 -->
+    <div id="toast" class="copy-success">
+        <div class="toast-body"></div>
+    </div>
+
+    <!-- 友情链接 -->
+    <section class="friend-links py-5 bg-light">
+        <div class="container">
+            <div class="section-header text-center mb-4">
+                <h4 class="section-title">友情链接</h4>
+                <div class="section-divider"></div>
+                <p class="section-subtitle text-muted">更多帕鲁世界相关资源</p>
+            </div>
+            <div class="row justify-content-center" id="friendLinksContainer">
+                <!-- 友情链接将通过 JavaScript 动态加载 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 页脚 -->
+    <footer class="footer mt-0 py-4 bg-light border-top">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-4 text-center text-md-start mb-3 mb-md-0">
+                    <h5 class="mb-0">
+                        <i class="bi bi-controller text-primary me-2"></i>
+                        <span class="text-primary">PalEditor</span>
+                    </h5>
+                    <small class="text-muted">打造最好的帕鲁编辑体验</small>
+                </div>
+                <div class="col-md-4 text-center mb-3 mb-md-0">
+                    <div class="d-flex justify-content-center gap-3">
+                        <a href="#" class="text-muted text-decoration-none">
+                            <i class="bi bi-github fs-4"></i>
+                        </a>
+                        <a href="#" class="text-muted text-decoration-none">
+                            <i class="bi bi-discord fs-4"></i>
+                        </a>
+                        <a href="#" class="text-muted text-decoration-none">
+                            <i class="bi bi-twitter-x fs-4"></i>
+                        </a>
+                    </div>
+                </div>
+                <div class="col-md-4 text-center text-md-end">
+                    <p class="mb-0 text-muted">
+                        <small>&copy; 2024 PalEditor. All rights reserved.</small>
+                    </p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 友情链接加载脚本 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.getElementById('friendLinksContainer');
+
+            // 从 JSON 文件加载友情链接
+            fetch('js/friendLinks.json')
+                .then(response => response.json())
+                .then(links => {
+                    container.innerHTML = links.map(link => `
+                        <div class="col-6 col-md-4 col-lg-3 mb-3">
+                            <a href="${link.url}" class="text-decoration-none link-secondary d-block text-center friend-link" target="_blank" rel="noopener noreferrer">
+                                ${link.name}
+                            </a>
+                        </div>
+                    `).join('');
+                })
+                .catch(error => console.error('Error loading friend links:', error));
+        });
+    </script>
+
+    <!-- JavaScript 依赖 -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <!-- 数据文件 -->
+    <script src="js/skillData.js"></script>
+    <script src="js/passiveData.js"></script>
+    <!-- 工具函数 -->
+    <script src="js/categories.js"></script>
+    <script src="js/filters.js"></script>
+    <script src="js/fileHandler.js"></script>
+    <!-- 功能模块 -->
+    <script src="js/palSelector.js"></script>
+    <script src="js/basicInfo.js"></script>
+    <script src="js/coreAttributes.js"></script>
+    <script src="js/workPreferences.js"></script>
+    <script src="js/palSouls.js"></script>
+    <script src="js/individualValues.js"></script>
+    <!-- 主程序 -->
+    <script src="js/learntSkillsManager.js"></script>
+    <script src="js/main.js"></script>
+    <script src="js/initializer.js"></script>
+    <!-- 初始化 -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            window.initializeAll();
+        });
+    </script>
+</body>
+</html>
