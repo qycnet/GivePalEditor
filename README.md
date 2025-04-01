@@ -216,22 +216,43 @@
 - 添加数据对比功能，允许用户比较不同帕鲁的属性
 - 实现自定义主题功能，允许用户个性化界面外观
 
-## 贡献指南
+## 参与贡献
 
-我们欢迎社区成员为帕鲁编辑器做出贡献。如果您想参与项目开发，请遵循以下步骤：
+我们非常欢迎您参与贡献！以下是参与本项目 [qycnet/GivePalEditor](https://github.com/qycnet/GivePalEditor) 的方法：
 
-1. Fork 本仓库
-2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 将您的更改推送到分支 (`git push origin feature/AmazingFeature`)
-5. 开启一个 Pull Request
+1. Fork 本仓库 (https://github.com/qycnet/GivePalEditor)
+2. 创建您的特性分支：
+   ```bash
+   git checkout -b feature/AmazingFeature
+   ```
+3. 提交您的更改：
+   ```bash
+   git commit -m 'Add some AmazingFeature'
+   ```
+4. 将您的更改推送到分支：
+   ```bash
+   git push origin feature/AmazingFeature
+   ```
+5. 开启一个 Pull Request 到 [qycnet/GivePalEditor](https://github.com/qycnet/GivePalEditor) 仓库
+
+### 贡献指南
+
+- 确保您的代码符合项目的编码规范
+- 新功能请提供完整的文档说明
+- 更新内容时请同时更新相关文档
+- 提交前请确保您的代码已经过测试
+- 请在PR中清晰描述您的更改内容
+
+## 版权说明
+
+本项目采用 [MIT](LICENSE) 协议开源。
 
 ## 反馈与支持
 
 如果您在使用过程中遇到任何问题，或有任何建议，请通过以下方式联系我们：
 
 - 在 GitHub 上提交 Issue
-- 发送邮件至：support@paleditor.com
+- 发送邮件至：tian@qycnet.cn
 
 我们非常重视您的反馈，并将努力改进帕鲁编辑器，为您提供更好的使用体验。
 
