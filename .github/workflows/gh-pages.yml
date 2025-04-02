@@ -10,10 +10,29 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # 添加环境变量以启用更详细的调试输出
+    env:
+      ACTIONS_STEP_DEBUG: true
+    
+    # 确保有正确的权限
     permissions:
       contents: write
+      pages: write
+      id-token: write
+    
+    # 确保只运行一个部署作业
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    
     steps:
-    - uses: actions/checkout@v3
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        fetch-depth: 0  # 获取完整的git历史
+
+    - name: Setup Pages
+      uses: actions/configure-pages@v3
 
     - name: Create _headers file
       run: |
@@ -21,7 +40,11 @@ jobs:
           X-Content-Type-Options: nosniff
           X-Frame-Options: DENY
           X-XSS-Protection: 1; mode=block" > _headers
+        cat _headers  # 验证文件内容
 
+    - name: List files before deploy
+      run: ls -la
+      
     - name: Deploy
       uses: peaceiris/actions-gh-pages@v3
       with:
@@ -29,3 +52,7 @@ jobs:
         publish_dir: ./
         enable_jekyll: false
         force_orphan: true
+        user_name: 'github-actions[bot]'
+        user_email: 'github-actions[bot]@users.noreply.github.com'
+        commit_message: 'Deploy to GitHub Pages'
+        full_commit_message: 'Deploy to GitHub Pages from GitHub Actions'
